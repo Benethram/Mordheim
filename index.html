@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mordheim — Mémo Arbitre</title>
+<!-- iOS Web App -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mordheim">
+<meta name="theme-color" content="#521515">
+<!-- Empêche le zoom au tap sur iPad -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+:root{--bg:#ede3cc;--card:#faf5ec;--card2:#f2e8d4;--side:#521515;--side2:#3d0e0e;--bord:#6b1a1a;--bord2:#8a2020;--gold:#7a5c14;--gold2:#c8a84a;--ink:#1a0a04;--dim:#6a4a2a;--dim2:#a08060;--border:#c8b48a;--border2:#ddd0b0;--ok:#3d6b44;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.55;display:flex;}
+
+/* SIDEBAR */
+#sb{width:118px;min-height:100vh;background:linear-gradient(180deg,var(--side),var(--side2));display:flex;flex-direction:column;flex-shrink:0;}
+.sb-logo{padding:14px 10px 10px;text-align:center;border-bottom:1px solid rgba(200,168,74,.2);}
+.sb-diam{width:42px;height:42px;border:2px solid var(--gold2);transform:rotate(45deg);margin:0 auto 5px;display:flex;align-items:center;justify-content:center;}
+.sb-diam span{transform:rotate(-45deg);font-family:'Cinzel',serif;font-size:1.1rem;font-weight:900;color:var(--gold2);}
+.sb-title{font-family:'Cinzel',serif;font-size:.58rem;font-weight:700;color:var(--gold2);letter-spacing:2px;text-transform:uppercase;}
+.sb-sub{font-size:.58rem;color:rgba(200,168,74,.5);font-style:italic;}
+.sb-nav{flex:1;padding:4px 0;}
+.nb{display:block;width:100%;padding:10px 6px;background:none;border:none;border-left:3px solid transparent;cursor:pointer;text-align:center;color:rgba(240,228,200,.5);transition:all .18s;}
+.nb:hover{background:rgba(255,255,255,.07);color:rgba(240,228,200,.85);}
+.nb.active{background:rgba(255,255,255,.1);color:#f0e4c8;border-left-color:var(--gold2);}
+.nb .nn{display:block;font-family:'Cinzel',serif;font-size:1rem;font-weight:700;line-height:1;margin-bottom:1px;}
+.nb .nl{display:block;font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.sb-bot{padding:9px 8px;border-top:1px solid rgba(200,168,74,.2);text-align:center;}
+.sb-dpct{display:block;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;color:var(--gold2);}
+.sb-dlbl{display:block;font-size:.5rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(200,168,74,.5);margin-top:1px;}
+
+/* APP */
+#app{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;}
+
+/* BANDEAU */
+#ban{background:var(--card2);border-bottom:1.5px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 1px 4px rgba(60,20,10,.1);}
+.tc{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.tc-lbl{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);}
+.tc-btn{width:22px;height:22px;border:1.5px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-size:.7rem;color:var(--dim);display:flex;align-items:center;justify-content:center;}
+.tc-btn:hover{border-color:var(--bord);color:var(--bord);}
+.tc-num{font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;color:var(--ink);min-width:17px;text-align:center;}
+.phases{display:flex;gap:3px;}
+.pp{padding:4px 8px;border-radius:10px;border:1.5px solid var(--border);background:white;font-family:'Cinzel',serif;font-size:.55rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim);cursor:pointer;}
+.pp:hover,.pp.active{background:var(--bord);border-color:var(--bord);color:white;}
+.bdsep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.der-band{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.der-lbl{font-family:'Cinzel',serif;font-size:.53rem;letter-spacing:1px;text-transform:uppercase;color:var(--dim2);}
+.der-bar{width:100px;height:5px;background:rgba(200,168,74,.2);border-radius:3px;overflow:hidden;}
+.der-fill{height:100%;background:var(--bord);border-radius:3px;width:0;transition:width .3s;}
+.der-pct{font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;color:var(--ink);min-width:32px;}
+.der-pct.alrt{color:var(--bord);}
+.srch{flex:1;max-width:240px;margin-left:auto;position:relative;}
+.srch input{width:100%;padding:5px 10px 5px 26px;border:1.5px solid var(--border);border-radius:13px;background:white;font-family:'EB Garamond',serif;font-size:.88rem;color:var(--ink);outline:none;}
+.srch input:focus{border-color:var(--bord);}
+.srch-ico{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.75rem;color:var(--dim2);pointer-events:none;}
+
+/* CONTENT */
+#cnt{flex:1;overflow-y:auto;padding:20px 20px 30px;}
+.page{display:none;}
+.page.active{display:block;}
+.ptrow{display:flex;align-items:baseline;gap:0;margin-bottom:16px;}
+.pt{font-family:'Cinzel',serif;font-size:1.45rem;font-weight:700;color:var(--ink);font-variant:small-caps;}
+.psub{font-size:.87rem;color:var(--dim);font-style:italic;margin-left:9px;}
+.twocol{display:grid;grid-template-columns:1fr 350px;gap:16px;align-items:start;}
+
+/* CARD */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:15px 17px;box-shadow:0 1px 3px rgba(60,20,10,.08);}
+.card+.card{margin-top:9px;}
+.ct{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--border2);margin-bottom:12px;display:flex;align-items:center;gap:4px;}
+.ct::before{content:'✦';font-size:.62rem;}
+.dcard{background:var(--side);border-radius:8px;padding:15px 17px;}
+.dcard .ct{color:var(--gold2);border-bottom-color:rgba(200,168,74,.2);}
+
+/* STAT BUTTONS */
+.slbl{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim2);display:block;margin-bottom:5px;}
+.btn-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:2px;}
+.sb{width:44px;height:44px;border-radius:7px;border:1.5px solid var(--border);background:white;font-family:'Cinzel',serif;font-size:.9rem;font-weight:600;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .14s;}
+.sb:hover:not(.active){background:var(--bg);border-color:var(--bord);}
+.sb.active{background:var(--bord);border-color:var(--bord);color:#f0e4c8;}
+
+/* RESULT CIRCLE */
+.res-area{display:flex;align-items:center;gap:16px;margin-top:14px;padding-top:14px;border-top:1.5px solid var(--border2);}
+.rcirc{width:108px;height:108px;border-radius:50%;background:var(--bord);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 14px rgba(107,26,26,.25);}
+.rcirc.imp{background:#888;}
+.rc-val{font-family:'Cinzel',serif;font-size:2rem;font-weight:900;color:#f0e4c8;line-height:1;}
+.rc-lbl{font-size:.55rem;color:rgba(240,228,200,.6);text-transform:uppercase;letter-spacing:1px;text-align:center;margin-top:2px;}
+.res-txt{flex:1;font-size:.88rem;color:var(--ink);line-height:1.5;}
+.res-txt strong{color:var(--bord);}
+
+/* PILLS */
+.pill-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:2px;}
+.pb{padding:6px 12px;border-radius:15px;border:1.5px solid var(--border);background:white;font-family:'EB Garamond',serif;font-size:.9rem;color:var(--ink);cursor:pointer;transition:all .14s;white-space:nowrap;}
+.pb:hover:not(.active){background:var(--bg);border-color:var(--bord);}
+.pb.active{background:var(--bord);border-color:var(--bord);color:white;}
+
+/* SUB-TABS */
+.stabs{display:flex;gap:3px;margin-bottom:-1px;}
+.stb{padding:7px 15px;border:1.5px solid var(--border);border-bottom:none;border-radius:6px 6px 0 0;background:white;font-family:'Cinzel',serif;font-size:.66rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .14s;}
+.stb:hover:not(.active){color:var(--bord);}
+.stb.active{background:var(--bord);border-color:var(--bord);color:#f0e4c8;}
+.stab-body{display:none;border-top:1.5px solid var(--border);padding-top:15px;}
+.stab-body.active{display:block;}
+
+/* REF ROWS */
+.rrow{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border2);font-size:.87rem;}
+.rrow:last-child{border-bottom:none;}
+.rk{font-family:'Cinzel',serif;font-size:.76rem;font-weight:600;color:var(--ink);}
+.rv{font-family:'Cinzel',serif;font-size:.86rem;font-weight:700;color:var(--bord);}
+.rv.dim{font-family:'EB Garamond',serif;font-size:.82rem;font-weight:400;color:var(--dim);text-align:right;max-width:200px;line-height:1.3;}
+
+/* TOUR PAGE */
+.pcard{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:13px 15px;margin-bottom:8px;}
+.pcard.cur{border-color:var(--bord);}
+.ph-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+.ph-n{font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;color:var(--dim2);text-transform:uppercase;margin-right:5px;}
+.ph-t{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;color:var(--ink);font-variant:small-caps;}
+.ph-b{font-size:.66rem;color:var(--bord);font-style:italic;}
+.chk{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px dashed var(--border2);cursor:pointer;}
+.chk:last-child{border-bottom:none;padding-bottom:0;}
+.cb{width:19px;height:19px;border:1.5px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;background:white;}
+.chk.done .cb{background:var(--ok);border-color:var(--ok);}
+.chk.done .cb::after{content:'✓';font-size:.75rem;color:white;}
+.chk-t{font-size:.88rem;color:var(--ink);line-height:1.4;}
+.chk.done .chk-t{color:var(--dim2);text-decoration:line-through;}
+
+/* BANDS WIDGET */
+.bw-row{padding:7px 0;border-bottom:1px solid var(--border2);}
+.bw-row:last-child{border-bottom:none;}
+.bw-top{display:flex;align-items:center;margin-bottom:5px;}
+.bdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:7px;}
+.bname{font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;color:var(--ink);flex:1;font-variant:small-caps;}
+.btype{display:block;font-family:'EB Garamond',serif;font-size:.72rem;font-weight:700;font-style:italic;color:var(--bord);line-height:1.1;}
+.bpct{font-family:'Cinzel',serif;font-size:.76rem;font-weight:700;color:var(--dim);}
+.bpct.alrt{color:var(--bord);}
+.bx-btn{cursor:pointer;color:var(--dim2);font-size:.8rem;margin-left:6px;background:none;border:none;padding:0;}
+.bx-btn:hover{color:var(--bord);}
+.bw-ctrs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.cg{display:flex;align-items:center;gap:4px;}
+.cg-l{font-family:'Cinzel',serif;font-size:.53rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim2);line-height:1.2;}
+.cbtn{width:25px;height:25px;border:1.5px solid var(--border);border-radius:5px;background:white;cursor:pointer;font-size:.88rem;color:var(--dim);display:flex;align-items:center;justify-content:center;}
+.cbtn:hover{border-color:var(--bord);color:var(--bord);}
+.cval{font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink);min-width:17px;text-align:center;}
+.der-btn-badge{padding:2px 8px;background:var(--bord);border:none;border-radius:9px;color:white;font-family:'Cinzel',serif;font-size:.57rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;}
+.add-btn{width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:6px;background:none;cursor:pointer;font-family:'Cinzel',serif;font-size:.65rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim2);margin-top:6px;}
+.add-btn:hover{border-color:var(--bord);color:var(--bord);}
+
+/* PSYCHO */
+.psy-calc{background:var(--bord);border-radius:8px;padding:15px 17px;}
+.psy-calc .slbl{color:rgba(240,228,200,.6);}
+.psy-calc .sb{border-color:rgba(200,168,74,.35);background:rgba(0,0,0,.2);color:#f0e4c8;}
+.psy-calc .sb:hover:not(.active){background:rgba(255,255,255,.1);}
+.psy-calc .sb.active{background:var(--gold);border-color:var(--gold);}
+.psy-res{display:flex;align-items:center;gap:14px;margin-top:13px;padding-top:13px;border-top:1px solid rgba(200,168,74,.25);}
+.pcy-c{width:104px;height:104px;border-radius:50%;border:2px solid var(--gold2);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.pcy-v{font-family:'Cinzel',serif;font-size:1.75rem;font-weight:900;color:var(--gold2);line-height:1;}
+.pcy-l{font-size:.56rem;color:rgba(200,168,74,.6);text-transform:uppercase;letter-spacing:1px;}
+.psy-txt{font-size:.88rem;color:rgba(240,228,200,.85);line-height:1.5;}
+.psy-txt strong{color:var(--gold2);}
+.psy-item{background:var(--card);border:1.5px solid var(--border);border-radius:7px;padding:11px 13px;margin-bottom:7px;}
+.psy-item-n{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--ink);font-variant:small-caps;padding-bottom:6px;border-bottom:1px solid var(--border2);margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+.psy-item-n::before{content:'✦';font-size:.58rem;color:var(--gold);}
+.psy-item-t{font-size:.86rem;color:var(--dim);line-height:1.5;}
+
+/* ARMES */
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px;}
+.wcard{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;align-items:flex-start;gap:10px;}
+.wbadge{width:34px;height:34px;background:var(--bord);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;color:#f0e4c8;flex-shrink:0;}
+.wname{font-family:'Cinzel',serif;font-size:.86rem;font-weight:700;color:var(--ink);font-variant:small-caps;margin-bottom:2px;}
+.wrule{font-size:.82rem;color:var(--dim);line-height:1.4;}
+
+/* TABLES */
+.rtbl{width:100%;border-collapse:collapse;}
+.rtbl th{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim2);border-bottom:1.5px solid var(--border);padding:4px 6px;text-align:left;background:rgba(200,168,74,.05);}
+.rtbl td{padding:5px 6px;border-bottom:1px solid var(--border2);font-size:.82rem;}
+.rtbl tr:last-child td{border-bottom:none;}
+.rtbl tr:hover td{background:rgba(200,168,74,.05);}
+.rtbl tr.mxrow td{color:var(--gold);font-style:italic;font-size:.78rem;background:rgba(200,168,74,.04);border-bottom:1.5px solid var(--border);}
+.rtbl tr.mxrow:hover td{background:rgba(200,168,74,.08);}
+
+/* BANDES REF */
+.bands-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:start;}
+.bli{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:6px;cursor:pointer;margin-bottom:3px;background:var(--card);border:1.5px solid var(--border);}
+.bli:hover{border-color:var(--bord);}
+.bli.active{border-left:3px solid var(--bord);background:rgba(107,26,26,.05);}
+.bli-name{font-family:'Cinzel',serif;font-size:.83rem;font-weight:700;color:var(--ink);font-variant:small-caps;flex:1;}
+.bli-max{font-size:.68rem;color:var(--dim2);font-style:italic;}
+.bdet{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:17px 19px;}
+.bdet-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:13px;padding-bottom:12px;border-bottom:1.5px solid var(--border2);}
+.bdet-diam{width:48px;height:48px;border:2px solid var(--gold);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bdet-diam span{transform:rotate(-45deg);font-family:'Cinzel',serif;font-size:1rem;font-weight:900;color:var(--gold);}
+.bdet-info{flex:1;}
+.bdet-name{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;color:var(--ink);font-variant:small-caps;}
+.bdet-sub{font-size:.82rem;color:var(--dim);font-style:italic;}
+.bdet-max{background:var(--bord);color:#f0e4c8;border-radius:6px;padding:6px 10px;text-align:center;flex-shrink:0;}
+.bdet-maxn{font-family:'Cinzel',serif;font-size:1.35rem;font-weight:900;display:block;line-height:1;}
+.bdet-maxl{font-size:.5rem;text-transform:uppercase;letter-spacing:1px;opacity:.75;}
+.brules-title{font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.brules-title::before{content:'✦';font-size:.58rem;}
+.brule{padding:5px 0;border-bottom:1px solid var(--border2);font-size:.87rem;color:var(--ink);line-height:1.4;}
+.brule:last-child{border-bottom:none;}
+
+/* APRÈS */
+.ap-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ap-prog{display:flex;align-items:center;gap:9px;}
+.ap-bar{flex:1;max-width:180px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.ap-fill{height:100%;background:var(--ok);border-radius:3px;transition:width .3s;width:0;}
+.ap-txt{font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;color:var(--dim);white-space:nowrap;}
+.ap-reset{padding:5px 11px;border:1.5px solid var(--border);border-radius:5px;background:none;cursor:pointer;font-family:'Cinzel',serif;font-size:.6rem;color:var(--dim2);}
+.ap-reset:hover{border-color:var(--bord);color:var(--bord);}
+.apgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.acard{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+.acard:hover{border-color:var(--bord);}
+.acard.done{opacity:.55;}
+.anum{width:28px;height:28px;border:1.5px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;color:var(--dim);flex-shrink:0;margin-top:1px;}
+.acard.done .anum{background:var(--ok);border-color:var(--ok);color:white;}
+.aname{font-family:'Cinzel',serif;font-size:.86rem;font-weight:700;color:var(--ink);font-variant:small-caps;margin-bottom:2px;}
+.acard.done .aname{text-decoration:line-through;color:var(--dim2);}
+.adesc{font-size:.81rem;color:var(--dim);line-height:1.4;}
+
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99;}
+#modal.open{display:flex;}
+.mbox{background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:20px;width:300px;max-width:92vw;}
+.mbox h3{font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:13px;font-variant:small-caps;}
+.fm{margin-bottom:8px;}
+.fm label{font-family:'Cinzel',serif;font-size:.58rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim2);display:block;margin-bottom:2px;}
+.fm input,.fm select{width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:5px;background:white;font-family:'EB Garamond',serif;font-size:.95rem;color:var(--ink);outline:none;}
+.mbtns{display:flex;gap:7px;justify-content:flex-end;margin-top:12px;}
+.btn-ok{padding:7px 16px;background:var(--bord);border:none;border-radius:5px;color:#f0e4c8;font-family:'Cinzel',serif;font-size:.66rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;}
+.btn-cancel{padding:7px 12px;background:none;border:1.5px solid var(--border);border-radius:5px;color:var(--dim);font-family:'Cinzel',serif;font-size:.66rem;cursor:pointer;}
+.mem-title{font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin:13px 0 4px;display:flex;align-items:center;gap:4px;}
+.mem-title::before{content:'✦';font-size:.58rem;}
+.hbadge{background:var(--bord);color:#f0e4c8;font-family:'Cinzel',serif;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:1px;}
+.mbadge{background:var(--dim2);color:white;font-family:'Cinzel',serif;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:1px;}
+.acard.sel{border-color:var(--bord);box-shadow:0 0 0 2px rgba(107,26,26,.15);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav id="sb">
+  <div class="sb-logo">
+    <div class="sb-diam"><span>M</span></div>
+    <div class="sb-title">Mordheim</div>
+    <div class="sb-sub">Mémo arbitre</div>
+  </div>
+  <div class="sb-nav">
+    <button class="nb active" onclick="go('tour',this)"><span class="nn">I</span><span class="nl">Tour</span></button>
+    <button class="nb" onclick="go('combat',this)"><span class="nn">II</span><span class="nl">Combat</span></button>
+    <button class="nb" onclick="go('psycho',this)"><span class="nn">III</span><span class="nl">Psycho</span></button>
+    <button class="nb" onclick="go('armes',this)"><span class="nn">IV</span><span class="nl">Armes</span></button>
+    <button class="nb" onclick="go('tables',this)"><span class="nn">V</span><span class="nl">Tables</span></button>
+    <button class="nb" onclick="go('bandes',this)"><span class="nn">VI</span><span class="nl">Bandes</span></button>
+    <button class="nb" onclick="go('apres',this)"><span class="nn">VII</span><span class="nl">Après</span></button>
+  </div>
+  <div class="sb-bot">
+    <span class="sb-dpct" id="sb-dpct">0%</span>
+    <span class="sb-dlbl">Déroute max</span>
+  </div>
+</nav>
+
+<div id="app">
+  <header id="ban">
+    <div class="tc">
+      <span class="tc-lbl">Tour</span>
+      <button class="tc-btn" onclick="chgTour(-1)">‹</button>
+      <span class="tc-num" id="tour-num">I</span>
+      <button class="tc-btn" onclick="chgTour(1)">›</button>
+    </div>
+    <div class="phases">
+      <button class="pp active" onclick="setPhase('debut',this)">Début</button>
+      <button class="pp" onclick="setPhase('mvt',this)">Mvt</button>
+      <button class="pp" onclick="setPhase('tir',this)">Tir</button>
+      <button class="pp" onclick="setPhase('cc',this)">CC</button>
+      <button class="pp" onclick="setPhase('fin',this)">Fin</button>
+    </div>
+    <div class="bdsep"></div>
+    <div class="der-band">
+      <span class="der-lbl">Déroute · max</span>
+      <div class="der-bar"><div class="der-fill" id="der-fill"></div></div>
+      <span class="der-pct" id="der-pct">0%</span>
+    </div>
+    <div class="srch">
+      <span class="srch-ico">🔍</span>
+      <input type="text" placeholder="Cherche une règle…" oninput="doSearch(this.value)">
+    </div>
+  </header>
+
+  <div id="cnt">
+
+    <!-- I TOUR -->
+    <div id="page-tour" class="page active">
+      <div class="ptrow"><span class="pt">Séquence du Tour</span><span class="psub">Coche les étapes au fur et à mesure.</span></div>
+      <div class="twocol">
+        <div>
+          <div class="pcard cur" id="pc-debut">
+            <div class="ph-hd" onclick="setPhaseById('debut')" style="cursor:pointer;"><div><span class="ph-n">1</span><span class="ph-t">Début de Tour</span></div><span class="ph-b" id="pb-debut">phase en cours</span></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Relever les figurines sonnées (elles passent « à terre »).</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Tests obligatoires : déroute (si ≥ 25 % de pertes), stupidité, peur, frénésie.</div></div>
+          </div>
+          <div class="pcard" id="pc-mvt">
+            <div class="ph-hd" onclick="setPhaseById('mvt')" style="cursor:pointer;"><div><span class="ph-n">2</span><span class="ph-t">Mouvement</span></div><span class="ph-b" id="pb-mvt"></span></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Déclarer les charges AVANT toute mesure ; chemin le plus direct.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Course : 2×M — impossible si ennemi à moins de 8 ps ; pas de tir.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Escalade : test d'Initiative. Dissimulation possible derrière un couvert.</div></div>
+          </div>
+          <div class="pcard" id="pc-tir">
+            <div class="ph-hd" onclick="setPhaseById('tir')" style="cursor:pointer;"><div><span class="ph-n">3</span><span class="ph-t">Tir</span></div><span class="ph-b" id="pb-tir"></span></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Choisir une cible visible, mesurer la portée.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Jets pour toucher (CT ± modifs), blesser, sauvegardes.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Figurine engagée au CC = impossible de tirer.</div></div>
+          </div>
+          <div class="pcard" id="pc-cc">
+            <div class="ph-hd" onclick="setPhaseById('cc')" style="cursor:pointer;"><div><span class="ph-n">4</span><span class="ph-t">Corps à Corps</span></div><span class="ph-b" id="pb-cc"></span></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Tous les combats en contact se résolvent.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Ordre : Initiative décroissante. Chargeur frappe en 1er (1er round).</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Figurine relevée frappe en dernier.</div></div>
+          </div>
+          <div class="pcard" id="pc-fin">
+            <div class="ph-hd" onclick="setPhaseById('fin')" style="cursor:pointer;"><div><span class="ph-n">5</span><span class="ph-t">Fin de Tour</span></div><span class="ph-b" id="pb-fin"></span></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Appliquer les effets de terrain / sorts actifs.</div></div>
+            <div class="chk" onclick="toggle(this)"><div class="cb"></div><div class="chk-t">Les figurines sonnées passent à « à terre ».</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:11px;">
+            <div class="ct">Bandes &amp; Déroute</div>
+            <p style="font-size:.81rem;color:var(--dim);font-style:italic;margin-bottom:9px;">À 25 % de pertes (hors de combat), test de déroute obligatoire (Cd du chef).</p>
+            <div id="bw"></div>
+            <button class="add-btn" onclick="openModal()">+ Ajouter une bande</button>
+          </div>
+          <div class="card" id="phase-rules-card">
+            <div class="ct" id="phase-rules-title">Début de Tour — Rappels</div>
+            <div id="phase-rules-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- II COMBAT -->
+    <div id="page-combat" class="page">
+      <div class="ptrow"><span class="pt">Combat</span><span class="psub">Sélectionne les valeurs — le résultat se met à jour.</span></div>
+      <div class="stabs">
+        <button class="stb active" onclick="setTab('cc',this)">Corps à Corps</button>
+        <button class="stb" onclick="setTab('tir',this)">Tir</button>
+        <button class="stb" onclick="setTab('blesser',this)">Blesser</button>
+        <button class="stb" onclick="setTab('svg',this)">Sauvegardes</button>
+        <button class="stb" onclick="setTab('degats',this)">Dégâts</button>
+      </div>
+
+      <!-- CC -->
+      <div id="t-cc" class="stab-body active">
+        <div class="twocol">
+          <div class="card">
+            <div class="ct">Pour Toucher au Corps à Corps</div>
+            <div class="slbl">CC de l'attaquant</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('ccAtt',1,this)">1</button>
+              <button class="sb" onclick="sel('ccAtt',2,this)">2</button>
+              <button class="sb active" onclick="sel('ccAtt',3,this)">3</button>
+              <button class="sb" onclick="sel('ccAtt',4,this)">4</button>
+              <button class="sb" onclick="sel('ccAtt',5,this)">5</button>
+              <button class="sb" onclick="sel('ccAtt',6,this)">6</button>
+              <button class="sb" onclick="sel('ccAtt',7,this)">7</button>
+              <button class="sb" onclick="sel('ccAtt',8,this)">8</button>
+              <button class="sb" onclick="sel('ccAtt',9,this)">9</button>
+              <button class="sb" onclick="sel('ccAtt',10,this)">10</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">CC du défenseur</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('ccDef',1,this)">1</button>
+              <button class="sb" onclick="sel('ccDef',2,this)">2</button>
+              <button class="sb active" onclick="sel('ccDef',3,this)">3</button>
+              <button class="sb" onclick="sel('ccDef',4,this)">4</button>
+              <button class="sb" onclick="sel('ccDef',5,this)">5</button>
+              <button class="sb" onclick="sel('ccDef',6,this)">6</button>
+              <button class="sb" onclick="sel('ccDef',7,this)">7</button>
+              <button class="sb" onclick="sel('ccDef',8,this)">8</button>
+              <button class="sb" onclick="sel('ccDef',9,this)">9</button>
+              <button class="sb" onclick="sel('ccDef',10,this)">10</button>
+            </div>
+            <div class="res-area">
+              <div class="rcirc" id="cc-circ"><span class="rc-val" id="cc-val">4+</span><span class="rc-lbl">au dé</span></div>
+              <div class="res-txt" id="cc-txt">CC égales.</div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="ct">Parade</div>
+              <p style="font-size:.84rem;color:var(--dim);line-height:1.5;">Épée ou rondache : battre le meilleur jet adverse. Un 6 naturel est toujours imparable. Impossible si la Force de l'attaquant est au moins le double de la Force de base du défenseur.</p>
+            </div>
+            <div class="card" style="margin-top:9px;">
+              <div class="ct">Rappels</div>
+              <div class="rrow"><span class="rk">Initiative décroissante</span><span class="rv dim">égalité au dé</span></div>
+              <div class="rrow"><span class="rk">Chargeur frappe en 1er</span><span class="rv dim">1er round seulement</span></div>
+              <div class="rrow"><span class="rk">Figurine relevée</span><span class="rv dim">frappe en dernier</span></div>
+              <div class="rrow"><span class="rk">Deux armes à 1 main</span><span class="rv">+1 Attaque</span></div>
+              <div class="rrow"><span class="rk">6 naturel pour toucher</span><span class="rv dim">toujours imparable</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIR -->
+      <div id="t-tir" class="stab-body">
+        <div class="twocol">
+          <div class="card">
+            <div class="ct">Pour Toucher au Tir</div>
+            <div class="slbl">Capacité de Tir (CT)</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('ct',2,this)">2</button>
+              <button class="sb active" onclick="sel('ct',3,this)">3</button>
+              <button class="sb" onclick="sel('ct',4,this)">4</button>
+              <button class="sb" onclick="sel('ct',5,this)">5</button>
+              <button class="sb" onclick="sel('ct',6,this)">6</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">Modificateurs</div>
+            <div class="pill-row">
+              <button class="pb" onclick="togMod(this,'couvert')">Couvert −1</button>
+              <button class="pb" onclick="togMod(this,'longue')">Longue portée −1</button>
+              <button class="pb" onclick="togMod(this,'bouge')">A bougé −1</button>
+              <button class="pb" onclick="togMod(this,'grande')">Grande cible +1</button>
+            </div>
+            <div class="res-area">
+              <div class="rcirc" id="tir-circ"><span class="rc-val" id="tir-val">4+</span><span class="rc-lbl">au dé</span></div>
+              <div class="res-txt" id="tir-txt">CT 3 = base 4+.</div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="ct">Base de CT</div>
+              <div class="rrow"><span class="rk">CT 2</span><span class="rv">5+</span></div>
+              <div class="rrow"><span class="rk">CT 3</span><span class="rv">4+</span></div>
+              <div class="rrow"><span class="rk">CT 4</span><span class="rv">3+</span></div>
+              <div class="rrow"><span class="rk">CT 5</span><span class="rv">2+</span></div>
+              <div class="rrow"><span class="rk">CT 6</span><span class="rv">2+</span></div>
+            </div>
+            <div class="card" style="margin-top:9px;">
+              <div class="ct">Modificateurs</div>
+              <div class="rrow"><span class="rk">Couvert</span><span class="rv">−1</span></div>
+              <div class="rrow"><span class="rk">Longue portée</span><span class="rv">−1</span></div>
+              <div class="rrow"><span class="rk">A bougé et tiré</span><span class="rv">−1</span></div>
+              <div class="rrow"><span class="rk">Grande cible</span><span class="rv">+1</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLESSER -->
+      <div id="t-blesser" class="stab-body">
+        <div class="twocol">
+          <div class="card">
+            <div class="ct">Jet pour Blesser — Force vs Endurance</div>
+            <div class="slbl">Force (attaquant / arme)</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('blF',1,this)">1</button>
+              <button class="sb" onclick="sel('blF',2,this)">2</button>
+              <button class="sb" onclick="sel('blF',3,this)">3</button>
+              <button class="sb active" onclick="sel('blF',4,this)">4</button>
+              <button class="sb" onclick="sel('blF',5,this)">5</button>
+              <button class="sb" onclick="sel('blF',6,this)">6</button>
+              <button class="sb" onclick="sel('blF',7,this)">7</button>
+              <button class="sb" onclick="sel('blF',8,this)">8</button>
+              <button class="sb" onclick="sel('blF',9,this)">9</button>
+              <button class="sb" onclick="sel('blF',10,this)">10</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">Endurance (cible)</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('blE',1,this)">1</button>
+              <button class="sb" onclick="sel('blE',2,this)">2</button>
+              <button class="sb active" onclick="sel('blE',3,this)">3</button>
+              <button class="sb" onclick="sel('blE',4,this)">4</button>
+              <button class="sb" onclick="sel('blE',5,this)">5</button>
+              <button class="sb" onclick="sel('blE',6,this)">6</button>
+              <button class="sb" onclick="sel('blE',7,this)">7</button>
+              <button class="sb" onclick="sel('blE',8,this)">8</button>
+              <button class="sb" onclick="sel('blE',9,this)">9</button>
+              <button class="sb" onclick="sel('blE',10,this)">10</button>
+            </div>
+            <div class="res-area">
+              <div class="rcirc" id="bl-circ"><span class="rc-val" id="bl-val">3+</span><span class="rc-lbl">pour blesser</span></div>
+              <div class="res-txt" id="bl-txt">Force supérieure de 1.</div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="ct">Table Blesser</div>
+              <div class="rrow"><span class="rk">F−2 ou moins</span><span class="rv">6+</span></div>
+              <div class="rrow"><span class="rk">F−1</span><span class="rv">5+</span></div>
+              <div class="rrow"><span class="rk">F = E</span><span class="rv">4+</span></div>
+              <div class="rrow"><span class="rk">F+1</span><span class="rv">3+</span></div>
+              <div class="rrow"><span class="rk">F+2 ou plus</span><span class="rv">2+</span></div>
+            </div>
+            <div class="card" style="margin-top:9px;">
+              <div class="ct">Modif. Sauvegarde / Force</div>
+              <div class="rrow"><span class="rk">Force 3 ou moins</span><span class="rv dim">—</span></div>
+              <div class="rrow"><span class="rk">Force 4</span><span class="rv">−1</span></div>
+              <div class="rrow"><span class="rk">Force 5</span><span class="rv">−2</span></div>
+              <div class="rrow"><span class="rk">Force 6</span><span class="rv">−3</span></div>
+              <div class="rrow"><span class="rk">Force 7</span><span class="rv">−4</span></div>
+              <div class="rrow"><span class="rk">Force 8</span><span class="rv">−5</span></div>
+              <div class="rrow"><span class="rk">Force 9+</span><span class="rv">−6</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAUVEGARDES -->
+      <div id="t-svg" class="stab-body">
+        <div class="twocol">
+          <div class="card">
+            <div class="ct">Sauvegarde Finale</div>
+            <div class="slbl">Arme de l'attaquant</div>
+            <div class="pill-row" id="weapon-pills">
+              <button class="pb active" onclick="setWeapon(0,this)">Normale</button>
+              <button class="pb" onclick="setWeapon(1,this)">Hache −1 svg</button>
+              <button class="pb" onclick="setWeapon(-1,this)">Dague +1 svg</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">Armure de base</div>
+            <div class="pill-row" id="armor-pills">
+              <button class="pb active" onclick="setArmor('none',this)">Aucune</button>
+              <button class="pb" onclick="setArmor('legere',this)">Légère 6+</button>
+              <button class="pb" onclick="setArmor('lourde',this)">Lourde 5+</button>
+              <button class="pb" onclick="setArmor('gromril',this)">Gromril 4+</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">Bouclier</div>
+            <div class="pill-row">
+              <button class="pb" id="shield-btn" onclick="togShield(this)">Bouclier +1</button>
+            </div>
+            <div class="slbl" style="margin-top:10px;">Force de l'attaquant</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('svgF',1,this)">1</button>
+              <button class="sb" onclick="sel('svgF',2,this)">2</button>
+              <button class="sb active" onclick="sel('svgF',3,this)">3</button>
+              <button class="sb" onclick="sel('svgF',4,this)">4</button>
+              <button class="sb" onclick="sel('svgF',5,this)">5</button>
+              <button class="sb" onclick="sel('svgF',6,this)">6</button>
+              <button class="sb" onclick="sel('svgF',7,this)">7</button>
+              <button class="sb" onclick="sel('svgF',8,this)">8</button>
+              <button class="sb" onclick="sel('svgF',9,this)">9</button>
+              <button class="sb" onclick="sel('svgF',10,this)">10</button>
+            </div>
+            <div class="res-area">
+              <div class="rcirc" id="svg-circ"><span class="rc-val" id="svg-val">6+</span><span class="rc-lbl">d'armure</span></div>
+              <div class="res-txt" id="svg-txt">Armure légère, F3.</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct">Sauvegardes</div>
+            <div class="rrow"><span class="rk">Armure légère</span><span class="rv">6+</span></div>
+            <div class="rrow"><span class="rk">Armure lourde</span><span class="rv">5+</span></div>
+            <div class="rrow"><span class="rk">Gromril</span><span class="rv">4+</span></div>
+            <div class="rrow"><span class="rk">Bouclier</span><span class="rv">+1</span></div>
+            <p style="font-size:.81rem;color:var(--dim);font-style:italic;margin-top:10px;">Hache : −1 à la sauvegarde adverse. Dague : +1 à la sauvegarde de la cible. Chute : aucune sauvegarde.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEGATS -->
+      <div id="t-degats" class="stab-body">
+        <div class="twocol">
+          <div class="card">
+            <div class="ct">Jet de Dégâts</div>
+            <div style="padding:11px 0;border-bottom:1px solid var(--border2);">
+              <div style="font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:3px;font-variant:small-caps;">1–2 · À Terre</div>
+              <p style="font-size:.86rem;color:var(--dim);line-height:1.5;">Rampe 2 ps, ne combat pas. Se relève au tour suivant (demi-mouvement, frappe en dernier).</p>
+            </div>
+            <div style="padding:11px 0;border-bottom:1px solid var(--border2);">
+              <div style="font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:3px;font-variant:small-caps;">3–4 · Sonné</div>
+              <p style="font-size:.86rem;color:var(--dim);line-height:1.5;">Ne fait rien ce tour. Au tour suivant, passe « à terre ».</p>
+            </div>
+            <div style="padding:11px 0;">
+              <div style="font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:3px;font-variant:small-caps;">5–6 · Hors de Combat</div>
+              <p style="font-size:.86rem;color:var(--dim);line-height:1.5;">Retiré du jeu. Séquelles résolues après la bataille (table D66).</p>
+            </div>
+          </div>
+          <div>
+            <div class="dcard" style="margin-bottom:9px;">
+              <div class="ct">Achever un adversaire</div>
+              <p style="font-size:.87rem;color:rgba(240,228,200,.82);line-height:1.6;margin-bottom:8px;"><strong style="color:var(--gold2);">À terre</strong> + touché et blessé au CC → hors de combat immédiat.</p>
+              <p style="font-size:.87rem;color:rgba(240,228,200,.82);line-height:1.6;"><strong style="color:var(--gold2);">Sonné</strong> + attaqué au CC → hors de combat automatique (sans jet).</p>
+            </div>
+            <div class="card">
+              <div class="ct">Récupération & Séquelles</div>
+              <div class="rrow"><span class="rk">HDM hors combat</span><span class="rv dim">D6 : 1-2 retiré définitivement, 3-6 rétabli.</span></div>
+              <div class="rrow"><span class="rk">Héros hors combat</span><span class="rv dim">D66 sur la table des Blessures Graves (page VII).</span></div>
+              <div class="rrow"><span class="rk">Coup critique</span><span class="rv dim">6 naturel pour blesser = effet spécial selon l'arme.</span></div>
+              <div class="rrow"><span class="rk">Plusieurs PV</span><span class="rv dim">Jet de dégâts à chaque point de vie perdu au-delà du 1er.</span></div>
+              <div class="rrow"><span class="rk">Tir sur engagé</span><span class="rv dim">Si raté, l'allié adjacent le plus proche est touché à la place.</span></div>
+            </div>
+            <div class="card" style="margin-top:9px;">
+              <div class="ct">Points de Vie multiples</div>
+              <p style="font-size:.84rem;color:var(--dim);line-height:1.5;">Un vampire (2 PV) qui perd son 1er PV subit un jet de dégâts normal (1-6). S'il survit (1-4), il reste debout avec 1 PV. S'il perd son 2e PV, nouveau jet de dégâts — un 5+ le met hors de combat.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- III PSYCHO -->
+    <div id="page-psycho" class="page">
+      <div class="ptrow"><span class="pt">Psychologie &amp; Déroute</span><span class="psub">2D6 ≤ Cd = succès.</span></div>
+      <div class="twocol">
+        <div>
+          <div class="psy-calc">
+            <div class="ct" style="color:var(--gold2);border-bottom-color:rgba(200,168,74,.2);">Test de Commandement</div>
+            <div class="slbl">Commandement (Cd)</div>
+            <div class="btn-row">
+              <button class="sb" onclick="sel('cd',5,this)">5</button>
+              <button class="sb" onclick="sel('cd',6,this)">6</button>
+              <button class="sb" onclick="sel('cd',7,this)">7</button>
+              <button class="sb active" onclick="sel('cd',8,this)">8</button>
+              <button class="sb" onclick="sel('cd',9,this)">9</button>
+              <button class="sb" onclick="sel('cd',10,this)">10</button>
+            </div>
+            <div class="psy-res">
+              <div class="pcy-c"><span class="pcy-v" id="cd-pct">72%</span><span class="pcy-l">Réussite</span></div>
+              <div class="psy-txt" id="cd-txt">2D6 ≤ 8. <strong>72 %</strong> de chance de réussite.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="psy-item"><div class="psy-item-n">Déroute</div><div class="psy-item-t">Test au début du tour dès 25 % de pertes (HC). Cd du chef ; alliés à 6 ps utilisent son Cd. Échec = partie perdue. Déroute volontaire toujours possible.</div></div>
+          <div class="psy-item"><div class="psy-item-n">Peur</div><div class="psy-item-t">Charger une cause de peur : test Cd ; raté = charge ratée. Chargé par une cause de peur : test Cd ; raté = touche uniquement sur 6 ce round.</div></div>
+          <div class="psy-item"><div class="psy-item-n">Haine</div><div class="psy-item-t">Relance les touches ratées au 1er round de corps à corps.</div></div>
+          <div class="psy-item"><div class="psy-item-n">Frénésie</div><div class="psy-item-t">Doit charger si possible. Attaques doublées. Immunité à la psychologie. Perdue si le guerrier subit une blessure.</div></div>
+          <div class="psy-item"><div class="psy-item-n">Stupidité</div><div class="psy-item-t">Test Cd au début du tour ; si raté, le guerrier agit au hasard ou reste inactif.</div></div>
+          <div class="psy-item"><div class="psy-item-n">Seul contre Tous</div><div class="psy-item-t">Seul contre 2 ennemis + sans allié à 6 ps : test Cd en fin de CC ; échec = fuite.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IV ARMES -->
+    <div id="page-armes" class="page">
+      <div class="ptrow"><span class="pt">Armes</span><span class="psub">Effets particuliers à mémoriser.</span></div>
+      <div class="wgrid">
+        <div class="wcard"><div class="wbadge">D</div><div><div class="wname">Dague</div><div class="wrule">+1 à la sauvegarde de la cible.</div></div></div>
+        <div class="wcard"><div class="wbadge">M</div><div><div class="wname">Masse / Marteau / Gourdin</div><div class="wrule">Résultat 2–4 aux dégâts = « sonné ».</div></div></div>
+        <div class="wcard"><div class="wbadge">H</div><div><div class="wname">Hache</div><div class="wrule">−1 à la sauvegarde adverse.</div></div></div>
+        <div class="wcard"><div class="wbadge">É</div><div><div class="wname">Épée</div><div class="wrule">Parade.</div></div></div>
+        <div class="wcard"><div class="wbadge">F</div><div><div class="wname">Fléau (2 mains)</div><div class="wrule">+2 Force au 1er round seulement.</div></div></div>
+        <div class="wcard"><div class="wbadge">B</div><div><div class="wname">Bouclier</div><div class="wrule">+1 à la sauvegarde d'armure.</div></div></div>
+        <div class="wcard"><div class="wbadge">R</div><div><div class="wname">Rondache</div><div class="wrule">Parade (pas de bonus de sauvegarde).</div></div></div>
+        <div class="wcard"><div class="wbadge">L</div><div><div class="wname">Lance</div><div class="wrule">+1 Force en charge. Si chargé : porteur frappe en 1er.</div></div></div>
+        <div class="wcard"><div class="wbadge">HB</div><div><div class="wname">Hallebarde (2 mains)</div><div class="wrule">+1 Force en permanence.</div></div></div>
+        <div class="wcard"><div class="wbadge">G</div><div><div class="wname">Grande Arme (2 mains)</div><div class="wrule">+2 Force. Frappe toujours en dernier.</div></div></div>
+      </div>
+      <div class="dcard">
+        <div class="ct">Parade — Rappel</div>
+        <p style="font-size:.87rem;color:rgba(240,228,200,.82);line-height:1.6;">Épée ou rondache : il faut battre le meilleur jet adverse. Un 6 naturel est toujours imparable. Impossible si la Force de l'attaquant vaut au moins le double de la Force de base du défenseur.</p>
+      </div>
+    </div>
+
+    <!-- V TABLES -->
+    <div id="page-tables" class="page">
+      <div class="ptrow"><span class="pt">Tables de Référence</span></div>
+      <div class="twocol">
+        <div>
+          <div class="card" style="margin-bottom:11px;">
+            <div class="ct">Profils Types &amp; Maximum par Race</div>
+            <p style="font-size:.72rem;color:var(--dim2);font-style:italic;margin-bottom:7px;">Ligne normale = profil de départ · <em style="color:var(--gold);">ligne italique dorée</em> = maximum atteignable en campagne</p>
+            <div style="overflow-x:auto;">
+            <table class="rtbl">
+              <thead><tr><th>Race</th><th>M</th><th>CC</th><th>CT</th><th>F</th><th>E</th><th>PV</th><th>I</th><th>A</th><th>Cd</th></tr></thead>
+              <tbody>
+                <tr><td>Humain</td><td>4</td><td>3</td><td>3</td><td>3</td><td>3</td><td>1</td><td>3</td><td>1</td><td>7</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>4</td><td>6</td><td>6</td><td>4</td><td>4</td><td>3</td><td>6</td><td>4</td><td>9</td></tr>
+                <tr><td>Elfe</td><td>5</td><td>4</td><td>4</td><td>3</td><td>3</td><td>1</td><td>5</td><td>1</td><td>8</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>5</td><td>7</td><td>7</td><td>4</td><td>4</td><td>3</td><td>9</td><td>4</td><td>10</td></tr>
+                <tr><td>Nain</td><td>3</td><td>4</td><td>3</td><td>3</td><td>4</td><td>1</td><td>2</td><td>1</td><td>9</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>3</td><td>7</td><td>6</td><td>4</td><td>5</td><td>3</td><td>5</td><td>4</td><td>10</td></tr>
+                <tr><td>Halfling</td><td>4</td><td>2</td><td>4</td><td>2</td><td>2</td><td>1</td><td>4</td><td>1</td><td>8</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>4</td><td>5</td><td>7</td><td>3</td><td>3</td><td>3</td><td>9</td><td>4</td><td>10</td></tr>
+                <tr><td>Skaven</td><td>5</td><td>3</td><td>3</td><td>3</td><td>3</td><td>1</td><td>4</td><td>1</td><td>5</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>6</td><td>6</td><td>6</td><td>4</td><td>4</td><td>3</td><td>7</td><td>4</td><td>7</td></tr>
+                <tr><td>Vampire</td><td>6</td><td>4</td><td>4</td><td>4</td><td>4</td><td>2</td><td>5</td><td>2</td><td>8</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>6</td><td>8</td><td>6</td><td>7</td><td>6</td><td>4</td><td>9</td><td>4</td><td>10</td></tr>
+                <tr><td>Homme-Bête</td><td>5</td><td>3</td><td>3</td><td>3</td><td>4</td><td>1</td><td>3</td><td>1</td><td>5</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>4</td><td>7</td><td>6</td><td>4</td><td>5</td><td>4</td><td>6</td><td>4</td><td>9</td></tr>
+                <tr><td>Ogre</td><td>6</td><td>3</td><td>2</td><td>4</td><td>4</td><td>3</td><td>3</td><td>2</td><td>7</td></tr>
+                <tr class="mxrow"><td><em>max</em></td><td>6</td><td>6</td><td>5</td><td>5</td><td>5</td><td>5</td><td>6</td><td>5</td><td>9</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <div class="card">
+            <div class="ct">Portées des Armes à Distance</div>
+            <table class="rtbl">
+              <thead><tr><th>Arme</th><th>Courte</th><th>Longue</th><th>F</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Arc court</td><td>8 ps</td><td>16 ps</td><td>3</td><td>—</td></tr>
+                <tr><td>Arc long</td><td>14 ps</td><td>28 ps</td><td>3</td><td>Rare 9</td></tr>
+                <tr><td>Arbalète</td><td>10 ps</td><td>20 ps</td><td>4</td><td>Rare 9</td></tr>
+                <tr><td>Arbalète poing</td><td>6 ps</td><td>12 ps</td><td>3</td><td>Rare 11</td></tr>
+                <tr><td>Pistolet</td><td>8 ps</td><td>—</td><td>4</td><td>Rare 9</td></tr>
+                <tr><td>Mousquet</td><td>24 ps</td><td>—</td><td>4</td><td>Rare 11, 1/2 tours</td></tr>
+                <tr><td>Fronde</td><td>8 ps</td><td>16 ps</td><td>3</td><td>Commun</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:11px;">
+            <div class="ct">Mouvement</div>
+            <div class="rrow"><span class="rk">Course</span><span class="rv dim">2×M. Impossible si ennemi à moins de 8 ps. Pas de tir.</span></div>
+            <div class="rrow"><span class="rk">Charge</span><span class="rv dim">2×M, déclarée avant mesurer. Chargeur frappe en 1er.</span></div>
+            <div class="rrow"><span class="rk">Se Cacher</span><span class="rv dim">Finir derrière couvert ; impossible si couru ou chargé.</span></div>
+            <div class="rrow"><span class="rk">Détection caché</span><span class="rv dim">Distance = Initiative en ps.</span></div>
+            <div class="rrow"><span class="rk">Escalade</span><span class="rv dim">Test d'Initiative ; grimpe jusqu'à son M.</span></div>
+            <div class="rrow"><span class="rk">Charge plongeante</span><span class="rv dim">+1 toucher, +1 Force depuis hauteur.</span></div>
+            <div class="rrow"><span class="rk">Chute</span><span class="rv dim">D3 touches, F = hauteur en ps, sans svg.</span></div>
+          </div>
+          <div class="card" style="margin-bottom:11px;">
+            <div class="ct">Paliers d'Expérience</div>
+            <p style="font-size:.8rem;color:var(--dim);font-style:italic;margin-bottom:6px;"><strong>Héros :</strong></p>
+            <p style="font-size:.82rem;color:var(--dim);">0 · 2 · 4 · 6 · 8 · 11 · 14 · 17 · 20 · 25 · 30 · 35 · 40 · 45 · 51 · 57 · 63 · 70…</p>
+            <p style="font-size:.8rem;color:var(--dim);font-style:italic;margin:9px 0 5px;"><strong>Hommes de Main :</strong></p>
+            <p style="font-size:.82rem;color:var(--dim);">0 · 5 · 9 · 14 · 20 · 27 · 34 · 42 · 51 · 60…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VI BANDES -->
+    <div id="page-bandes" class="page">
+      <div class="ptrow"><span class="pt">Bandes</span><span class="psub">Règles spéciales par bande.</span></div>
+      <div class="bands-layout">
+        <div id="band-list-ref">
+          <div class="bli active" onclick="showBand(0,this)"><div class="bdot" style="background:#3a6aad"></div><div><div class="bli-name">Mercenaires</div><div class="bli-max">max 15</div></div></div>
+          <div class="bli" onclick="showBand(1,this)"><div class="bdot" style="background:#8a2020"></div><div><div class="bli-name">Possédés</div><div class="bli-max">max 15</div></div></div>
+          <div class="bli" onclick="showBand(2,this)"><div class="bdot" style="background:#7a5c14"></div><div><div class="bli-name">Répurgateurs</div><div class="bli-max">max 15</div></div></div>
+          <div class="bli" onclick="showBand(3,this)"><div class="bdot" style="background:#3d6b44"></div><div><div class="bli-name">Soeurs de Sigmar</div><div class="bli-max">max 15</div></div></div>
+          <div class="bli" onclick="showBand(4,this)"><div class="bdot" style="background:#5a3a7a"></div><div><div class="bli-name">Morts-Vivants</div><div class="bli-max">max 15</div></div></div>
+          <div class="bli" onclick="showBand(5,this)"><div class="bdot" style="background:#2a6a6a"></div><div><div class="bli-name">Skavens</div><div class="bli-max">max 20</div></div></div>
+          <div class="bli" onclick="showBand(6,this)"><div class="bdot" style="background:#8a6014"></div><div><div class="bli-name">Ogres / Maneaters</div><div class="bli-max">max 12</div></div></div>
+        </div>
+        <div id="band-det">
+          <!-- Filled by showBand() -->
+        </div>
+      </div>
+    </div>
+
+    <!-- VII APRES -->
+    <div id="page-apres" class="page">
+      <div class="ap-hd">
+        <div>
+          <div class="ptrow" style="margin-bottom:8px;"><span class="pt">Après-Bataille</span></div>
+          <div class="ap-prog">
+            <div class="ap-bar"><div class="ap-fill" id="ap-fill"></div></div>
+            <span class="ap-txt" id="ap-txt">0 / 9</span>
+          </div>
+        </div>
+        <button class="ap-reset" onclick="resetApres()">↺ Réinitialiser</button>
+      </div>
+      <div class="apgrid" id="apgrid"></div>
+      <div id="step-detail" style="display:none;background:var(--card);border:1.5px solid var(--bord);border-radius:8px;padding:16px 18px;margin-bottom:12px;"></div>
+      <div class="dcard">
+        <div class="ct">Captif &amp; Cas Particuliers</div>
+        <p style="font-size:.86rem;color:rgba(240,228,200,.82);line-height:1.6;">Capturé (Blessure grave 61) : rançon / échange / vente pour D6×5 CO. <strong style="color:var(--gold2);">Morts-vivants</strong> : peuvent transformer le captif en zombie. <strong style="color:var(--gold2);">Possédés</strong> : peuvent sacrifier le captif — le chef gagne +1 XP.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <h3>Ajouter une Bande</h3>
+    <div class="fm"><label>Nom</label><input type="text" id="m-name" placeholder="Les Croc-de-Fer…"></div>
+    <div class="fm"><label>Type de warband</label>
+      <select id="m-type">
+        <option value="">— choisir —</option>
+        <option value="Mercenaires">Mercenaires</option>
+        <option value="Possedes">Possédés</option>
+        <option value="Repurgateurs">Répurgateurs</option>
+        <option value="Soeurs">Sœurs de Sigmar</option>
+        <option value="Morts">Morts-Vivants</option>
+        <option value="Skavens">Skavens</option>
+        <option value="Ogres">Ogres</option>
+      </select>
+    </div>
+    <div class="fm"><label>Couleur</label>
+      <select id="m-color">
+        <option value="#3a6aad">Bleu</option>
+        <option value="#8a2020">Rouge bordeaux</option>
+        <option value="#3d6b44">Vert</option>
+        <option value="#7a5c14">Or</option>
+        <option value="#5a3a7a">Violet</option>
+        <option value="#2a6a6a">Teal</option>
+        <option value="#555">Gris</option>
+      </select>
+    </div>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-ok" onclick="addBand()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var tourNums = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+var tourIdx = 0;
+var phase = 'debut';
+var ccAtt = 3, ccDef = 3;
+var ct = 3, tirMods = {};
+var blF = 4, blE = 3;
+var svgArmor = 'none', svgShield = false, svgF = 3, svgWeapon = 0;
+var cdVal = 8;
+var bands = [];
+var stepsDone = {};
+
+// Load saved data
+try { bands = JSON.parse(localStorage.getItem('mh3_bands') || '[]'); } catch(e){ bands=[]; }
+try { stepsDone = JSON.parse(localStorage.getItem('mh3_steps') || '{}'); } catch(e){ stepsDone={}; }
+
+function save() {
+  try {
+    localStorage.setItem('mh3_bands', JSON.stringify(bands));
+    localStorage.setItem('mh3_steps', JSON.stringify(stepsDone));
+  } catch(e){}
+}
+
+// ── NAVIGATION ──
+function go(id, btn) {
+  var pages = document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  var nbs = document.querySelectorAll('.nb');
+  for(var i=0;i<nbs.length;i++) nbs[i].classList.remove('active');
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── TOUR / PHASE ──
+function chgTour(d) {
+  tourIdx = Math.max(0, Math.min(9, tourIdx+d));
+  document.getElementById('tour-num').textContent = tourNums[tourIdx];
+}
+
+var PHASE_RULES = {
+  debut: { title: 'Debut de Tour — Rappels', rows: [
+    ['Derouté', 'Test si >= 25% de la bande hors de combat. Cd du chef. Echec = partie perdue.'],
+    ['Stupidité', 'Test Cd debut de tour. Echec = inactif ou avance au hasard.'],
+    ['Peur', 'Test Cd pour charger une cause de peur.'],
+    ['Frénésie', 'Doit charger l\'ennemi le plus proche si visible.']
+  ]},
+  mvt: { title: 'Mouvement — Rappels', rows: [
+    ['Course', '2xM. Impossible si ennemi a moins de 8 ps. Pas de tir.'],
+    ['Charge', '2xM, declaree avant mesurer. Chargeur frappe en 1er (1er round).'],
+    ['Interception', 'Ennemi non engage a moins de 2 ps de la trajectoire.'],
+    ['Se Cacher', 'Finir derriere couvert. Impossible si couru ou charge.'],
+    ['Escalade', 'Test d\'Initiative ; grimpe jusqu\'a son M.'],
+    ['Chute', 'D3 touches, F = hauteur en ps, sans sauvegarde.']
+  ]},
+  tir: { title: 'Tir — Rappels', rows: [
+    ['Couvert', '-1 pour toucher.'],
+    ['Longue portee', '-1 pour toucher.'],
+    ['A bouge et tire', '-1 pour toucher.'],
+    ['Grande cible', '+1 pour toucher.'],
+    ['1 naturel', 'Rate toujours.'],
+    ['6 naturel', 'Touche toujours — imparable.'],
+    ['Engage au CC', 'Impossible de tirer.']
+  ]},
+  cc: { title: 'Corps a Corps — Rappels', rows: [
+    ['Ordre d\'attaque', 'Initiative decroissante. Egalite = de. Chargeurs 1er. Releve frappe en dernier.'],
+    ['6 naturel', 'Toujours imparable.'],
+    ['A terre + attaque CC', 'Hors de combat immediatement si blesse.'],
+    ['Sonne + attaque CC', 'Hors de combat automatiquement.'],
+    ['Deux armes 1 main', '+1 Attaque.']
+  ]},
+  fin: { title: 'Fin de Tour', rows: [
+    ['Sonnes', 'Passent a "a terre" en fin de tour.'],
+    ['Effets', 'Appliquer terrains, sorts actifs.'],
+    ['Suivant', 'Passer au joueur suivant.']
+  ]}
+};
+
+function setPhaseById(id) {
+  // Called from phase card headers — find the matching pill button
+  var pills = document.querySelectorAll('.pp');
+  var map = ['debut','mvt','tir','cc','fin'];
+  for(var i=0;i<pills.length;i++) {
+    if(map[i]===id) { setPhase(id, pills[i]); return; }
+  }
+}
+
+function setPhase(id, btn) {
+  phase = id;
+  var pps = document.querySelectorAll('.pp');
+  for(var i=0;i<pps.length;i++) pps[i].classList.remove('active');
+  btn.classList.add('active');
+  var phases = ['debut','mvt','tir','cc','fin'];
+  for(var i=0;i<phases.length;i++) {
+    var c = document.getElementById('pc-'+phases[i]);
+    var b = document.getElementById('pb-'+phases[i]);
+    if(c) c.classList.toggle('cur', phases[i]===id);
+    if(b) b.textContent = phases[i]===id ? 'phase en cours' : '';
+  }
+  updatePhaseRules();
+}
+
+function updatePhaseRules() {
+  var r = PHASE_RULES[phase];
+  if(!r) return;
+  document.getElementById('phase-rules-title').textContent = r.title;
+  var html = '';
+  for(var i=0;i<r.rows.length;i++) {
+    html += '<div class="rrow"><span class="rk">'+r.rows[i][0]+'</span><span class="rv dim">'+r.rows[i][1]+'</span></div>';
+  }
+  document.getElementById('phase-rules-body').innerHTML = html;
+}
+
+// ── CHECKLIST ──
+function toggle(el) { el.classList.toggle('done'); }
+
+// ── STAT SELECTOR ──
+function sel(key, val, btn) {
+  var row = btn.parentElement;
+  var btns = row.querySelectorAll('.sb');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  if(key==='ccAtt'){ ccAtt=val; calcCC(); }
+  else if(key==='ccDef'){ ccDef=val; calcCC(); }
+  else if(key==='ct'){ ct=val; calcTir(); }
+  else if(key==='blF'){ blF=val; calcBlesser(); }
+  else if(key==='blE'){ blE=val; calcBlesser(); }
+  else if(key==='svgF'){ svgF=val; calcSvg(); }
+  else if(key==='cd'){ cdVal=val; calcCd(); }
+}
+
+// ── COMBAT TABS ──
+function setTab(id, btn) {
+  var stbs = document.querySelectorAll('.stb');
+  for(var i=0;i<stbs.length;i++) stbs[i].classList.remove('active');
+  var tabs = document.querySelectorAll('.stab-body');
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  document.getElementById('t-'+id).classList.add('active');
+}
+
+// ── CALCULATORS ──
+function calcCC() {
+  var diff = ccAtt - ccDef;
+  var need = Math.max(2, Math.min(6, 4-diff));
+  document.getElementById('cc-val').textContent = need+'+';
+  var txt = diff > 0 ? 'CC attaquant superieure de '+diff+'.' : diff < 0 ? 'CC attaquant inferieure de '+Math.abs(diff)+'.' : 'CC egales.';
+  txt += ' Un 6 naturel est toujours imparable.';
+  document.getElementById('cc-txt').textContent = txt;
+  document.getElementById('cc-circ').className = 'rcirc';
+}
+
+function togMod(btn, key) {
+  btn.classList.toggle('active');
+  tirMods[key] = !tirMods[key];
+  calcTir();
+}
+
+function calcTir() {
+  var base = Math.max(2, 7-ct);
+  var mod = 0;
+  if(tirMods['couvert']) mod++;
+  if(tirMods['longue']) mod++;
+  if(tirMods['bouge']) mod++;
+  if(tirMods['grande']) mod--;
+  var final = base + mod;
+  var imp = final > 6;
+  document.getElementById('tir-val').textContent = imp ? '—' : Math.max(2,final)+'+';
+  document.getElementById('tir-circ').className = imp ? 'rcirc imp' : 'rcirc';
+  document.getElementById('tir-txt').textContent = imp ? 'Impossible avec ces modificateurs.' : 'Base CT'+ct+' = '+base+'+, modificateurs : '+(mod>=0?'+':'')+mod+'.';
+}
+
+function calcBlesser() {
+  var diff = blF - blE;
+  var need, desc;
+  if(diff>=2){need=2;desc='Force superieure de 2 ou plus.';}
+  else if(diff===1){need=3;desc='Force superieure de 1.';}
+  else if(diff===0){need=4;desc='Force egale a l\'Endurance.';}
+  else if(diff===-1){need=5;desc='Force inferieure de 1.';}
+  else if(diff===-2){need=6;desc='Force inferieure de 2.';}
+  else{need=null;desc='Force trop faible — impossible.';}
+  var fmod = blF<=3?0:blF===4?1:blF===5?2:blF===6?3:blF===7?4:blF===8?5:6;
+  document.getElementById('bl-val').textContent = need ? need+'+' : '—';
+  document.getElementById('bl-circ').className = need===null ? 'rcirc imp' : 'rcirc';
+  document.getElementById('bl-txt').textContent = desc + ' Modif. sauvegarde : -'+fmod+'. Critique sur un 6 pour blesser.';
+}
+
+function setWeapon(mod, btn) {
+  svgWeapon = mod;
+  var pills = document.getElementById('weapon-pills').querySelectorAll('.pb');
+  for(var i=0;i<pills.length;i++) pills[i].classList.remove('active');
+  btn.classList.add('active');
+  calcSvg();
+}
+
+function setArmor(type, btn) {
+  svgArmor = type;
+  var pills = document.getElementById('armor-pills').querySelectorAll('.pb');
+  for(var i=0;i<pills.length;i++) pills[i].classList.remove('active');
+  btn.classList.add('active');
+  calcSvg();
+}
+
+function togShield(btn) {
+  svgShield = !svgShield;
+  if(svgShield) btn.classList.add('active'); else btn.classList.remove('active');
+  calcSvg();
+}
+
+function calcSvg() {
+  var fmod = svgF<=3?0:svgF===4?1:svgF===5?2:svgF===6?3:svgF===7?4:svgF===8?5:6;
+
+  // Cas : aucune armure, pas de bouclier → pas de sauvegarde
+  if(svgArmor==='none' && !svgShield) {
+    document.getElementById('svg-val').textContent='—';
+    document.getElementById('svg-circ').className='rcirc imp';
+    document.getElementById('svg-txt').textContent='Aucune armure ni bouclier — pas de sauvegarde possible.';
+    return;
+  }
+
+  // Base selon armure. Bouclier seul = 6+ (base 6, sans soustraction sup.)
+  var bases = {none:6, legere:6, lourde:5, gromril:4};
+  var base = bases[svgArmor];
+
+  // Bouclier améliore la sauvegarde de 1 sauf si bouclier seul (déjà compté)
+  if(svgShield && svgArmor!=='none') base--;
+
+  var descArmor = svgArmor==='none' ? 'Bouclier seul (6+)' :
+                  svgArmor==='legere' ? 'Armure légère (6+)' :
+                  svgArmor==='lourde' ? 'Armure lourde (5+)' : 'Gromril (4+)';
+  if(svgShield && svgArmor!=='none') descArmor += ' + bouclier (−1)';
+
+  var final = base + fmod + svgWeapon;
+  if(final>6) {
+    document.getElementById('svg-val').textContent='—';
+    document.getElementById('svg-circ').className='rcirc imp';
+    var annul = descArmor+(fmod>0?', Force +'+fmod:'')+(svgWeapon>0?', hache +'+svgWeapon:svgWeapon<0?', dague '+svgWeapon:'');
+    document.getElementById('svg-txt').textContent=annul+' — sauvegarde annulée.';
+    return;
+  }
+  document.getElementById('svg-val').textContent = Math.max(2,final)+'+';
+  document.getElementById('svg-circ').className = 'rcirc';
+  var parts = [descArmor];
+  if(fmod>0) parts.push('Force +'+fmod);
+  if(svgWeapon>0) parts.push('hache +1');
+  if(svgWeapon<0) parts.push('dague −1');
+  document.getElementById('svg-txt').textContent = parts.join(', ')+'.';
+}
+
+function calcCd() {
+  var count=0;
+  for(var i=1;i<=6;i++) for(var j=1;j<=6;j++) if(i+j<=cdVal) count++;
+  var pct = Math.round(count/36*100);
+  document.getElementById('cd-pct').textContent = pct+'%';
+  document.getElementById('cd-txt').textContent = '2D6 <= '+cdVal+'. '+pct+' % de chance de reussite.';
+}
+
+// ── BANDS WIDGET (Tour page) ──
+function renderBands() {
+  var el = document.getElementById('bw');
+  if(!bands.length) {
+    el.innerHTML = '<p style="font-size:.81rem;color:var(--dim2);font-style:italic;text-align:center;padding:6px 0;">Aucune bande.</p>';
+    updateDer();
+    return;
+  }
+  var html = '';
+  for(var i=0;i<bands.length;i++) {
+    var b = bands[i];
+    var pct = b.eff>0 ? Math.round(b.ko/b.eff*100) : 0;
+    var alrt = pct>=25;
+    html += '<div class="bw-row">';
+    html += '<div class="bw-top">';
+    html += '<div class="bdot" style="background:'+b.color+'"></div>';
+    html += '<span class="bname">'+b.name+'</span>'+(b.type?'<span class="btype">'+b.type+'</span>':'');
+    html += '<span class="bpct'+(alrt?' alrt':'')+'">'+pct+'%</span>';
+    html += '<button class="bx-btn" onclick="removeBand('+i+')">x</button>';
+    html += '</div>';
+    html += '<div class="bw-ctrs">';
+    html += '<div class="cg"><span class="cg-l">Effectif</span>';
+    html += '<button class="cbtn" onclick="bc('+i+',\'eff\',-1)">-</button>';
+    html += '<span class="cval">'+b.eff+'</span>';
+    html += '<button class="cbtn" onclick="bc('+i+',\'eff\',1)">+</button></div>';
+    html += '<div class="cg"><span class="cg-l">Hors<br>Combat</span>';
+    html += '<button class="cbtn" onclick="bc('+i+',\'ko\',-1)">-</button>';
+    html += '<span class="cval">'+b.ko+'</span>';
+    html += '<button class="cbtn" onclick="bc('+i+',\'ko\',1)">+</button></div>';
+    if(alrt) html += '<button class="der-btn-badge">Derouté !</button>';
+    html += '</div></div>';
+  }
+  el.innerHTML = html;
+  updateDer();
+}
+
+function bc(i, key, d) {
+  bands[i][key] = Math.max(0, (bands[i][key]||0)+d);
+  if(key==='eff' && bands[i].ko > bands[i].eff) bands[i].ko = bands[i].eff;
+  save(); renderBands();
+}
+
+function removeBand(i) {
+  bands.splice(i,1);
+  save(); renderBands();
+}
+
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function addBand() {
+  var name = document.getElementById('m-name').value.trim();
+  if(!name) return;
+  bands.push({name:name, type:document.getElementById('m-type').value, color:document.getElementById('m-color').value, eff:0, ko:0});
+  document.getElementById('m-type').value='';
+  save(); renderBands(); closeModal();
+  document.getElementById('m-name').value='';
+}
+
+function updateDer() {
+  var max=0;
+  for(var i=0;i<bands.length;i++){
+    var pct = bands[i].eff>0 ? Math.round(bands[i].ko/bands[i].eff*100) : 0;
+    if(pct>max) max=pct;
+  }
+  document.getElementById('der-fill').style.width = Math.min(100,max)+'%';
+  document.getElementById('der-pct').textContent = max+'%';
+  document.getElementById('der-pct').className = 'der-pct'+(max>=25?' alrt':'');
+  document.getElementById('sb-dpct').textContent = max+'%';
+}
+
+// ── BANDES REFERENCE ──
+var BANDS = [
+  { name:'Mercenaires', sub:'Bande humaine polyvalente', max:15, dot:'#3a6aad',
+    rules:['Reikland : Cd du capitaine a 12 ps ; tireurs +1 CT.','Middenheim : capitaine/champions F4 au depart.','Marienburg : +1 jets de rarete ; 600 CO de depart.','Bretteurs : relancent touches ratees en charge avec epee (1er round).','Recrues : promotables en heros au seuil XP.'],
+    members:[
+      {name:'Capitaine',type:'H',m:4,cc:4,ct:4,f:3,e:3,pv:1,i:4,a:1,cd:8},
+      {name:'Champion',type:'H',m:4,cc:4,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:7},
+      {name:'Bretteur',type:'H',m:4,cc:4,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:7},
+      {name:'Pistolier',type:'H',m:4,cc:3,ct:4,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Guerriers',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Archers',type:'M',m:4,cc:2,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:6}
+    ]},
+  { name:'Possedes', sub:'Adorateurs du Chaos mutants', max:15, dot:'#8a2020',
+    rules:['Possedes : D3 Dons du Chaos a la creation. Pas d\'armure.','Hommes-Betes : Peur + Frenesie + pas d\'armure.','Mutations : certains tirent sur table mutations apres avancee.','Damnes : pas de limite effectif ; n\'avancent jamais.'],
+    members:[
+      {name:'Chef Possede',type:'H',m:4,cc:3,ct:3,f:3,e:4,pv:1,i:3,a:1,cd:8},
+      {name:'Mage des Mutations',type:'H',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Possede',type:'H',m:4,cc:3,ct:0,f:4,e:4,pv:2,i:3,a:2,cd:8},
+      {name:'Hommes-Betes',type:'M',m:5,cc:3,ct:3,f:3,e:4,pv:1,i:3,a:1,cd:5},
+      {name:'Damnes',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:5}
+    ]},
+  { name:'Repurgateurs', sub:'Chasseurs de sorcieres sigmarites', max:15, dot:'#7a5c14',
+    rules:['Fanatiques : +1 CC contre sorciers et porteurs de marques du Chaos.','Flagellants : Frenesie, doivent charger. Attaques doublees.','Precheur : alliés a 6 ps relancent tests Cd rates.'],
+    members:[
+      {name:'Inquisiteur',type:'H',m:4,cc:4,ct:4,f:3,e:3,pv:1,i:4,a:1,cd:8},
+      {name:'Precheur',type:'H',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Champion',type:'H',m:4,cc:4,ct:4,f:3,e:3,pv:1,i:4,a:1,cd:7},
+      {name:'Flagellants',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:4,a:2,cd:8},
+      {name:'Guerriers Sigmarites',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7}
+    ]},
+  { name:'Soeurs de Sigmar', sub:'Guerrieres saintes de la Forteresse du Rocher', max:15, dot:'#3d6b44',
+    rules:['Signe de Sigmar : a 8 ps d\'un sorcier, annule sort sur 4+ (1D6).','Protection de Sigmar : immunisees corruption du Chaos.','Foi Inebranlable : immunisees Peur/Terreur Chaos/non-morts.','Fureur du Juste : +1 Att en charge contre guerrier du Chaos.'],
+    members:[
+      {name:'Matriache',type:'H',m:4,cc:4,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:9},
+      {name:'Soeur Superieure',type:'H',m:4,cc:4,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:8},
+      {name:'Augure',type:'H',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Soeurs',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Novices',type:'M',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:6}
+    ]},
+  { name:'Morts-Vivants', sub:'Legions du Comte Vlad', max:15, dot:'#5a3a7a',
+    rules:['Vampire : cause Peur. Immunise psychologie/poison. Non capturable.','Zombies : 0 XP. Immunises Peur/Terreur/Panique.','Loups Funestes : Peur. M9.','Necromancien : sorts vent de Mort.'],
+    members:[
+      {name:'Vampire',type:'H',m:6,cc:4,ct:0,f:4,e:4,pv:2,i:5,a:2,cd:8},
+      {name:'Necromancien',type:'H',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:7},
+      {name:'Goule (heros)',type:'H',m:5,cc:3,ct:0,f:3,e:4,pv:1,i:2,a:2,cd:6},
+      {name:'Zombies',type:'M',m:4,cc:2,ct:2,f:3,e:3,pv:1,i:1,a:1,cd:5},
+      {name:'Goules',type:'M',m:5,cc:3,ct:0,f:3,e:4,pv:1,i:2,a:2,cd:5},
+      {name:'Loups Funestes',type:'M',m:9,cc:3,ct:0,f:3,e:3,pv:1,i:3,a:1,cd:4}
+    ]},
+  { name:'Skavens', sub:'Assassins du Clan Eshin', max:20, dot:'#2a6a6a',
+    rules:['Infiltration : deploiement hors de vue a plus de 12 ps.','Grimpeur Ne : escalade sans test.','Queue de Combat : +1 Att (I2, frappe dernier).','Lotus Noir : 6 naturel = blessure auto, ignore armure.','Art de la Mort Silencieuse : pas de test panique des voisins.'],
+    members:[
+      {name:'Maitre Assassin',type:'H',m:5,cc:4,ct:4,f:4,e:3,pv:1,i:7,a:2,cd:7},
+      {name:'Assassin',type:'H',m:5,cc:4,ct:4,f:3,e:3,pv:1,i:6,a:2,cd:6},
+      {name:'Maitre des Lames',type:'H',m:5,cc:4,ct:3,f:3,e:3,pv:1,i:5,a:1,cd:6},
+      {name:'Nuit-Coureurs',type:'M',m:5,cc:3,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:5},
+      {name:'Guerriers Eshin',type:'M',m:5,cc:4,ct:3,f:3,e:3,pv:1,i:4,a:1,cd:5}
+    ]},
+  { name:'Ogres / Maneaters', sub:'Mercenaires brutaux', max:12, dot:'#8a6014',
+    rules:['Slow to Advance : double XP par avancee.','Difficult Customers : -1 a tous jets de rarete.','Peur : tous les Ogres causent la Peur.','Grande taille : ciblables a couvert. Armures limitees.'],
+    members:[
+      {name:'Chef Ogre',type:'H',m:6,cc:3,ct:2,f:4,e:4,pv:3,i:3,a:2,cd:7},
+      {name:'Ogre Veteran',type:'H',m:6,cc:3,ct:2,f:4,e:4,pv:3,i:3,a:2,cd:7},
+      {name:'Chasseur de Primes',type:'H',m:4,cc:3,ct:3,f:3,e:3,pv:1,i:3,a:1,cd:6},
+      {name:'Ogres',type:'M',m:6,cc:3,ct:2,f:4,e:4,pv:3,i:3,a:1,cd:6},
+      {name:'Halfelins',type:'M',m:4,cc:2,ct:4,f:2,e:2,pv:1,i:4,a:1,cd:8}
+    ]}
+];
+
+function showBand(idx, btn) {
+  var blis = document.querySelectorAll('.bli');
+  for(var i=0;i<blis.length;i++) blis[i].classList.remove('active');
+  if(btn) btn.classList.add('active');
+  var b = BANDS[idx];
+  var rules = '';
+  for(var i=0;i<b.rules.length;i++) {
+    rules += '<div class="brule">&#8226; '+b.rules[i]+'</div>';
+  }
+  var members = '<div class="mem-title">Personnages</div>';
+  members += '<table class="rtbl" style="margin-top:6px;"><thead><tr><th>Nom</th><th>Type</th><th>M</th><th>CC</th><th>CT</th><th>F</th><th>E</th><th>PV</th><th>I</th><th>A</th><th>Cd</th></tr></thead><tbody>';
+  for(var i=0;i<b.members.length;i++) {
+    var m = b.members[i];
+    var badge = m.type==='H' ? '<span class="hbadge">H</span>' : '<span class="mbadge">M</span>';
+    members += '<tr><td>'+m.name+'</td><td>'+badge+'</td><td>'+m.m+'</td><td>'+m.cc+'</td><td>'+m.ct+'</td><td>'+m.f+'</td><td>'+m.e+'</td><td>'+m.pv+'</td><td>'+m.i+'</td><td>'+m.a+'</td><td>'+m.cd+'</td></tr>';
+  }
+  members += '</tbody></table>';
+  document.getElementById('band-det').innerHTML =
+    '<div class="bdet">' +
+    '<div class="bdet-hd">' +
+    '<div class="bdet-diam"><span>'+b.name[0]+'</span></div>' +
+    '<div class="bdet-info"><div class="bdet-name">'+b.name+'</div><div class="bdet-sub">'+b.sub+'</div></div>' +
+    '<div class="bdet-max"><span class="bdet-maxn">'+b.max+'</span><span class="bdet-maxl">Fig. Max</span></div>' +
+    '</div>' +
+    '<div class="brules-title">Regles Speciales</div>' +
+    rules +
+    members +
+    '</div>';
+}
+
+// ── APRES-BATAILLE ──
+var AP_STEPS = [
+  {n:1, name:'Blessures', desc:'HDM : D6. 1-2 retire, 3-6 retabli. Heros : D66 table ci-dessous.',
+   detail:'<b>Hommes de Main hors combat :</b> jet 1D6. 1-2 = retire de la campagne. 3-6 = retabli, rejoint la bande normalement.<br><br><b>Heros hors combat :</b> jet D66 (dizaine + unite).<br><br><table class="rtbl"><thead><tr><th>D66</th><th>Resultat</th></tr></thead><tbody><tr><td>11-15</td><td>Mort — retire definitivement de la campagne</td></tr><tr><td>16</td><td>Blessures Multiples — jeter D3 fois (ignorer 11-16)</td></tr><tr><td>21</td><td>Jambe brisee — rate le prochain scenario</td></tr><tr><td>22</td><td>Folie furieuse — Stupidite permanente</td></tr><tr><td>23</td><td>Blessure a la main — rate le prochain scenario</td></tr><tr><td>24</td><td>Profonde entaille — rate le prochain scenario</td></tr><tr><td>25</td><td>Oeil creve — -1 CT en permanence</td></tr><tr><td>26</td><td>Vieille blessure — D6 avant chaque bataille, 1 = absent</td></tr><tr><td>31</td><td>Nerf touche — -1 Initiative en permanence</td></tr><tr><td>32</td><td>Fracture du crane — Stupidite permanente</td></tr><tr><td>33</td><td>Estropie — -1 Mouvement en permanence</td></tr><tr><td>34</td><td>Machoire fracassee — -1 Commandement en permanence</td></tr><tr><td>35</td><td>Cotes enfoncees — -1 Force en permanence</td></tr><tr><td>36</td><td>Cheville fracassee — -1 Mouvement supplementaire</td></tr><tr><td>41-55</td><td>Pleine Forme — retabli sans sequelle</td></tr><tr><td>56</td><td>Capture — l\'adversaire decide de son sort</td></tr><tr><td>61</td><td>Endurci — immunise a la Peur (sauf non-morts/demons)</td></tr><tr><td>62</td><td>Cicatrices Horribles — cause la Peur desormais</td></tr><tr><td>63</td><td>Combattant de Rue — +1 Att avec massue/gourdin</td></tr><tr><td>64</td><td>Survie Heroique — gagne +1 XP</td></tr><tr><td>65</td><td>Echappe Belle — gagne +D3 XP</td></tr><tr><td>66</td><td>Retablissement Miraculeux — pleine forme + D3 XP</td></tr></tbody></table>'},
+  {n:2, name:'Experience', desc:'+1 XP par survivant. +1 XP chef victorieux. +1 XP par ennemi HC.',
+   detail:'<b>Gain d\'experience :</b><br>- Chaque membre survivant (non HC) gagne +1 XP.<br>- Le chef de la bande gagnante gagne +1 XP supplementaire.<br>- Chaque heros gagne +1 XP par ennemi qu\'il a personnellement mis hors de combat.<br><br>Quand un heros atteint un nouveau palier d\'XP, il tire une avancee sur la table de sa bande. Quand un homme de main atteint un palier, tous les membres de son groupe progressent ensemble.'},
+  {n:3, name:'Exploration', desc:'1D6/heros survivant. +1 de si victoire. Max 6 des. Doubles = lieu special.',
+   detail:'<b>Lancer les des :</b> 1D6 par heros survivant non mis hors de combat. +1 de supplementaire si la bande a gagne la bataille. Maximum 6 des au total.<br><br><b>Interprete les resultats :</b><br>- Total de tous les des = fragments de malepierre trouves (wyrdstone)<br>- Doubles (deux des identiques) = choisir un lieu parmi la liste<br>- Triples ou plus = choisir un lieu PLUS effet supplementaire<br><br><b>Lieux d\'Exploration (doubles) :</b><br>11-Auberge · 12-Joaillier · 13-Armurerie · 14-Maison de ville · 15-Forge · 16-Fletcher · 21-Tannerie · 22-Forge de glaives · 23-Entrep&ocirc;t · 24-Taverne · 25-Cathedrale · 26-Marche · 31-Temple en ruine · 32-Magasin · 33-Biblioth&egrave;que · 34-Tour de garde · 35-Havre de paix · 36-Abattoirs<br><b>Triples :</b> memes lieux mais avec revenus doubles ou regle speciale additionnelle.'},
+  {n:4, name:'Vendre la Pierre Magique', desc:'Prix : 2D6 x 5 CO par fragment (peut conserver).',
+   detail:'<b>Vente de Malepierre :</b> jet 2D6 x 5 CO par fragment vendu. Vous pouvez choisir d\'en conserver pour l\'exploration futures ou pour les objectifs de scenario.<br><br>Certains scenarios recompensent les bandes qui ont accumule beaucoup de malepierre.'},
+  {n:5, name:'Veterans Disponibles', desc:'Jet 2D6 >= 6 pour trouver un veteran specifique.',
+   detail:'<b>Recrutement de veterans :</b> certains types de guerriers necessitent un jet pour etre disponibles. Jet 2D6 >= seuil indique dans la liste de recrutement de la bande. Les veterans ont des profils ameliores par rapport aux recrues de base.'},
+  {n:6, name:'Objets Rares', desc:'Jet 2D6 >= indice de rarete pour acheter.',
+   detail:'<b>Achat d\'objets rares :</b> pour chaque objet rare souhaite, jet 2D6. Si le resultat est >= a l\'indice de rarete de l\'objet, il est disponible a l\'achat. Ce jet est independant pour chaque objet.<br><br><b>Indices de rarete courants :</b><br>- Arc long : Rare 9<br>- Arbalete : Rare 9<br>- Pistolet : Rare 9<br>- Mousquet : Rare 11<br>- Arbalete de poing : Rare 11<br>- Armure lourde : Rare 8<br>- Gromril : Rare 10'},
+  {n:7, name:'Recrues & Objets Communs', desc:'Recruter librement dans la limite du max d\'effectif.',
+   detail:'<b>Recrutement :</b> toutes les recrues de base sont disponibles sans jet de des. Respecter la limite d\'effectif maximum de la bande. Chaque recrue a un cout fixe en couronnes d\'or.<br><br><b>Objets communs :</b> armes et armures de base disponibles librement chez n\'importe quel marchand sans jet.'},
+  {n:8, name:'Repartir l\'Equipement', desc:'Distribuer et reorganiser l\'equipement librement.',
+   detail:'Transferer librement l\'equipement entre les membres de la bande. Les figurines ne peuvent porter qu\'une quantite limitee d\'equipement (generalement 2 armes + 1 armure + bouclier/rondache).<br><br>Note : certains objets sont reserves aux heros ou a des types de guerriers specifiques.'},
+  {n:9, name:'Valeur de Bande', desc:'Nb de guerriers x5 + XP total = valeur.',
+   detail:'<b>Calcul de la valeur de bande :</b><br>Nombre total de figurines x 5<br>+ XP total de tous les heros<br>+ XP total de tous les hommes de main<br>+ valeur de l\'equipement (optionnel selon regles de la campagne)<br><br>La valeur de bande determine les ecarts autorises entre adversaires pour un scenario equilibre. Un ecart de +/- 50 est generalement considere comme acceptable.'}
+];
+
+var activeStep = 0;
+
+function renderApres() {
+  var done = 0;
+  for(var k in stepsDone) { if(stepsDone[k]) done++; }
+  document.getElementById('ap-fill').style.width = (done/9*100)+'%';
+  document.getElementById('ap-txt').textContent = done+' / 9';
+  var html = '';
+  for(var i=0;i<AP_STEPS.length;i++) {
+    var s = AP_STEPS[i];
+    var isDone = stepsDone[s.n] ? true : false;
+    html += '<div class="acard'+(isDone?' done':'')+(activeStep===s.n?' sel':'')+'" onclick="selStep('+s.n+')">';
+    html += '<div class="anum">'+(isDone?'&#10003;':s.n)+'</div>';
+    html += '<div><div class="aname">'+s.name+'</div>';
+    html += '<div class="adesc">'+s.desc+'</div></div>';
+    html += '</div>';
+  }
+  document.getElementById('apgrid').innerHTML = html;
+  showStepDetail(activeStep);
+}
+
+function selStep(n) {
+  if(activeStep===n) {
+    // Toggle the done state
+    stepsDone[n] = !stepsDone[n];
+    save();
+  } else {
+    activeStep = n;
+  }
+  renderApres();
+}
+
+function showStepDetail(n) {
+  var el = document.getElementById('step-detail');
+  if(!el) return;
+  if(!n) { el.style.display='none'; return; }
+  var s = null;
+  for(var i=0;i<AP_STEPS.length;i++) { if(AP_STEPS[i].n===n) { s=AP_STEPS[i]; break; } }
+  if(!s) { el.style.display='none'; return; }
+  var isDone = stepsDone[n] ? true : false;
+  el.style.display = 'block';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+    '<div class="ct" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">'+s.n+'. '+s.name+'</div>' +
+    '<button onclick="togStepDone('+n+')" style="padding:5px 12px;border:1.5px solid '+(isDone?'var(--ok)':'var(--border)')+';border-radius:5px;background:'+(isDone?'var(--ok)':'white')+';color:'+(isDone?'white':'var(--dim)')+';font-family:Cinzel,serif;font-size:.6rem;cursor:pointer;">'+(isDone?'&#10003; Fait':'Marquer fait')+'</button>' +
+    '</div>' +
+    '<div style="font-size:.86rem;color:var(--ink);line-height:1.6;">'+s.detail+'</div>';
+}
+
+function togStepDone(n) {
+  stepsDone[n] = !stepsDone[n];
+  save(); renderApres();
+}
+
+function togStep(n) {
+  stepsDone[n] = !stepsDone[n];
+  save(); renderApres();
+}
+// Legacy alias kept for any residual onclick="togStep(n)" calls
+
+function resetApres() {
+  if(!confirm('Reinitialiser toutes les etapes ?')) return;
+  stepsDone = {};
+  save(); renderApres();
+}
+
+// ── SEARCH ──
+function doSearch(q) {
+  if(!q || q.length<2) return;
+  var l = q.toLowerCase();
+  var nbs = document.querySelectorAll('.nb');
+  if(/cc|corps|toucher|attaque/.test(l)) { go('combat', nbs[1]); setTab('cc', document.querySelectorAll('.stb')[0]); }
+  else if(/tir|ct|portee|arc|arbalete|pistolet/.test(l)) { go('combat', nbs[1]); setTab('tir', document.querySelectorAll('.stb')[1]); }
+  else if(/blesser|force|endurance/.test(l)) { go('combat', nbs[1]); setTab('blesser', document.querySelectorAll('.stb')[2]); }
+  else if(/armure|sauvegarde/.test(l)) { go('combat', nbs[1]); setTab('svg', document.querySelectorAll('.stb')[3]); }
+  else if(/psycho|peur|fuite|deroute|commandement|cd/.test(l)) go('psycho', nbs[2]);
+  else if(/arme|epee|hache|lance|dague/.test(l)) go('armes', nbs[3]);
+  else if(/bande|mercenaire|skaven|soeur|posses|mort|ogre/.test(l)) go('bandes', nbs[5]);
+  else if(/apres|blessure|exploration|xp|wyrd|malepierre/.test(l)) go('apres', nbs[6]);
+}
+
+// ── INIT ──
+calcCC();
+calcTir();
+calcBlesser();
+calcSvg();
+calcCd();
+renderBands();
+showBand(0, null);
+renderApres();
+updatePhaseRules();
+</script>
+</body>
+</html>
